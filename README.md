@@ -7,6 +7,7 @@
 
 # DevOps CI/CD Pipeline on AWS with Terraform and Kubernetes
 
+
 This project implements a CI/CD pipeline for a Node.js application, deployed on AWS infrastructure using Terraform-provisioned EC2 instances and a manually created Kubernetes cluster. The pipeline automates code scanning, building, containerization, and deployment, with monitoring via Prometheus and Grafana. ArgoCD enables GitOps-based deployments to Kubernetes. This `README.md` provides a comprehensive guide to the architecture, workflow, tools, and setup instructions.
 
 ## Infrastructure
