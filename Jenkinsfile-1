@@ -1,0 +1,108 @@
+pipeline {
+    agent any
+
+    stages {
+    stage('Checkout Code') {
+        steps {
+            echo 'scm git'
+            git branch: 'main', url: 'https://github.com/priyankayadav-911/Project_08_CICD_Argocd_Prometheus_Grafana.git'
+        }
+    }
+    
+
+    stage('SonarQube Analysis') {
+        steps {
+            withSonarQubeEnv('SonarQube') {   // Jenkins -> Manage Jenkins -> Configure System -> SonarQube servers
+                 script {
+                   def scannerHome = tool 'SonarScanner'   // Jenkins -> Manage Jenkins -> Tools -> SonarQube Scanner installations
+                      sh """
+                          ${scannerHome}/bin/sonar-scanner \
+                          -Dsonar.projectKey=my-devops-app \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://3.86.46.168:9000/ \
+                          -Dsonar.login=squ_60077d9cdcd07603137ce8c90997915b5044baa6
+                       """
+                    }
+                }
+            }
+        }
+
+    stage('Building the code') {
+      steps {
+        sh 'ls -ltr'
+        // build the project and create a JAR file
+        sh 'npm install'
+      }
+    }
+
+    stage('Build docker image'){
+    steps{
+        script{
+            echo 'docker image build'
+        sh 'sudo docker build -t priyankayadav911/nodejs:${BUILD_NUMBER} .'
+        }
+    }
+}
+		
+     stage('docker image scan'){
+     steps{
+         sh "sudo trivy image priyankayadav911/nodejs:${BUILD_NUMBER}"
+     }
+ }		
+
+
+stage('Push Image to ECR') {
+    steps {
+        withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+            script {
+                def accountId = "176545285953"
+                def region = "us-east-1"
+                def repoName = "nodejs"
+                def imageTag = "${BUILD_NUMBER}"
+                def ecrUrl = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+
+                sh """
+                # Login to ECR
+                aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecrUrl}
+
+                # Tag Docker image
+                docker tag priyankayadav911/${repoName}:${imageTag} ${ecrUrl}/${repoName}:${imageTag}
+
+                # Push to ECR
+                docker push ${ecrUrl}/${repoName}:${imageTag}
+                """
+            }
+        }
+    }
+}
+stage('Update Deployment File') {
+
+    environment {
+        GIT_REPO_NAME = "Project_08_CICD_Argocd_Prometheus_Grafana"
+        GIT_USER_NAME = "priyankayadav-911"
+        ECR_REPO = "176545285953.dkr.ecr.us-east-1.amazonaws.com/nodejs"
+    }
+
+    steps {
+        echo 'Update Deployment File'
+
+        withCredentials([string(credentialsId: 'githubtoken', variable: 'githubtoken')]) {
+
+            sh '''
+            git config user.email "priyankayadavgpy5@gmail.com"
+            git config user.name "priyanka"
+
+            # Update image
+            sed -i "s|image: .*nodejs.*|image: ${ECR_REPO}:${BUILD_NUMBER}|" deploymentfiles/deployment.yml
+
+            git add .
+
+            git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+
+            git push https://${githubtoken}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+            '''
+        }
+      }
+   }
+  }
+}
