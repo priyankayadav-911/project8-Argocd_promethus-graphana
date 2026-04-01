@@ -2,5 +2,5 @@ projectKey=my-devops-app
 serverUrl=http://54.209.141.181:9000
 serverVersion=26.3.0.120487
 dashboardUrl=http://54.209.141.181:9000/dashboard?id=my-devops-app
-ceTaskId=4835e73a-7f40-4650-9213-ae36ecb75c78
-ceTaskUrl=http://54.209.141.181:9000/api/ce/task?id=4835e73a-7f40-4650-9213-ae36ecb75c78
+ceTaskId=61103eb2-0bce-484e-a657-282d5b3f857b
+ceTaskUrl=http://54.209.141.181:9000/api/ce/task?id=61103eb2-0bce-484e-a657-282d5b3f857b
