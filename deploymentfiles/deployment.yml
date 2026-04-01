@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: mc-app
-        image: 176545285953.dkr.ecr.us-east-1.amazonaws.com/nodejs:7
+        image: 176545285953.dkr.ecr.us-east-1.amazonaws.com/nodejs:8
         ports:
         - containerPort: 3000
