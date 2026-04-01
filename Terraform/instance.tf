@@ -109,7 +109,7 @@ resource "aws_instance" "Jenkins_server" {
               # Pull and run SonarQube container
               sudo docker run -d --name sonarqube \
               -p 9000:9000 \
-              sonarqube:lts
+              sonarqube:latest
 
               # Install Node.js + npm
 
