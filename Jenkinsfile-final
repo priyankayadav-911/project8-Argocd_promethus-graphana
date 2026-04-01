@@ -5,22 +5,22 @@ pipeline {
     stage('Checkout Code') {
         steps {
             echo 'scm git'
-            git branch: 'main', url: 'https://github.com/priyankayadav-911/Project_08_CICD_Argocd_Prometheus_Grafana.git'
+            git branch: 'main', url: 'https://github.com/priyankayadav-911/project8-Argocd_promethus-graphana.git'
         }
     }
     
 
     stage('SonarQube Analysis') {
         steps {
-            withSonarQubeEnv('SonarQube') {   // Jenkins -> Manage Jenkins -> Configure System -> SonarQube servers
+            withSonarQubeEnv('sonarenv') {   // Jenkins -> Manage Jenkins -> Configure System -> SonarQube servers
                  script {
-                   def scannerHome = tool 'SonarScanner'   // Jenkins -> Manage Jenkins -> Tools -> SonarQube Scanner installations
+                   def scannerHome = tool 'sonarscanner'   // Jenkins -> Manage Jenkins -> Tools -> SonarQube Scanner installations
                       sh """
                           ${scannerHome}/bin/sonar-scanner \
                           -Dsonar.projectKey=my-devops-app \
                           -Dsonar.sources=. \
-                          -Dsonar.host.url=http://3.86.46.168:9000/ \
-                          -Dsonar.login=squ_60077d9cdcd07603137ce8c90997915b5044baa6
+                          -Dsonar.host.url=http://54.209.141.181:9000/ \
+                          -Dsonar.login=squ_56e91074026b2d6f630d21c50bfa122531d1987c
                        """
                     }
                 }
@@ -39,21 +39,21 @@ pipeline {
     steps{
         script{
             echo 'docker image build'
-        sh 'sudo docker build -t priyankayadav911/nodejs:${BUILD_NUMBER} .'
+        sh 'docker build -t priyankayadav911/nodejs:${BUILD_NUMBER} .'
         }
     }
 }
 		
      stage('docker image scan'){
      steps{
-         sh "sudo trivy image priyankayadav911/nodejs:${BUILD_NUMBER}"
+         sh "trivy image priyankayadav911/nodejs:${BUILD_NUMBER}"
      }
  }		
 
 
 stage('Push Image to ECR') {
     steps {
-        withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+        withAWS(credentials: 'aws-token', region: 'us-east-1') {
             script {
                 def accountId = "176545285953"
                 def region = "us-east-1"
@@ -78,7 +78,7 @@ stage('Push Image to ECR') {
 stage('Update Deployment File') {
 
     environment {
-        GIT_REPO_NAME = "Project_08_CICD_Argocd_Prometheus_Grafana"
+        GIT_REPO_NAME = "project8-Argocd_promethus-graphana"
         GIT_USER_NAME = "priyankayadav-911"
         ECR_REPO = "176545285953.dkr.ecr.us-east-1.amazonaws.com/nodejs"
     }
@@ -86,7 +86,7 @@ stage('Update Deployment File') {
     steps {
         echo 'Update Deployment File'
 
-        withCredentials([string(credentialsId: 'githubtoken', variable: 'githubtoken')]) {
+        withCredentials([string(credentialsId: 'git-token', variable: 'githubtoken')]) {
 
             sh '''
             git config user.email "priyankayadavgpy5@gmail.com"
