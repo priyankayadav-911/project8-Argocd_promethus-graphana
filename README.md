@@ -19,7 +19,7 @@ The infrastructure is hosted on AWS, with EC2 instances provisioned via Terrafor
 - **Tools Installed**:
   - **Jenkins**: CI/CD server for pipeline orchestration (port 8080).
   - **Docker**: Builds and manages container images.
-  - **SonarQube**: Performs static code analysis for quality and security (port 9000).
+  - **SonarQube**: Performs static code analysis for quality and security (port 9000)..
   - **Trivy**: Scans Docker images for vulnerabilities.
   - **NPM**: Builds Node.js applications.
 - **Terraform Configuration**:
