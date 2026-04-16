@@ -12,7 +12,7 @@ RUN npm ci --omit=dev
 # Copy rest of the app
 COPY . .
 
-# Switch to non-root user for runtime
+# Switch to non-root user for runtime .
 USER app
 
 EXPOSE 3000
